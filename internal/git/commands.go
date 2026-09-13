@@ -3,15 +3,36 @@ package git
 
 import (
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
-func GetRepoRoot() string {
+const LazyTreeDir = ".lazytree"
+
+type gitInfo struct {
+	root string
+}
+
+func getOriginUrl() string {
+	stdout, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(stdout))
+}
+
+func GetProjectName() string {
+	withExt := filepath.Base(getOriginUrl())
+	return strings.Split(withExt, ".")[0]
+}
+
+func GetCurrentRoot() string {
 	root, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
 		return ""
 	}
-	return strings.TrimSpace(string(root))
+	rootStr := strings.TrimSpace(string(root))
+	return filepath.Clean(rootStr)
 }
 
 func GetCurrentBranch() string {
@@ -20,4 +41,19 @@ func GetCurrentBranch() string {
 		return ""
 	}
 	return strings.TrimSpace(string(branch))
+}
+
+func GetCommonRoot() string {
+	stdout, err := exec.Command("git", "rev-parse", "--path-format=absolute", "--git-common-dir").Output()
+	if err != nil {
+		return ""
+	}
+
+	gitRoot := filepath.Clean(strings.TrimSpace(string(stdout)))
+
+	if filepath.Base(gitRoot) == ".git" {
+		return filepath.Dir(gitRoot)
+	}
+
+	return string(gitRoot)
 }
