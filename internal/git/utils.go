@@ -62,7 +62,7 @@ func CleanWorktreeMetadata() (string, error) {
 	if err != nil {
 		pruneOutput := strings.TrimSpace(string(pruneOutput))
 		if pruneOutput != "" {
-			return "", fmt.Errorf("prune error: %w", pruneOutput)
+			return "", fmt.Errorf("prune error: %s", pruneOutput)
 		}
 	}
 

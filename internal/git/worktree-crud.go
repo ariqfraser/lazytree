@@ -123,3 +123,28 @@ func CheckoutBranch(tree WorktreeStatus, branch string) error {
 
 	return nil
 }
+
+func DeleteWorktree(tree WorktreeStatus) error {
+	if tree.Path == "" {
+		return fmt.Errorf("delete worktree: path is empty")
+	}
+
+	mainRoot := GetCommonRoot()
+	if mainRoot == "" {
+		return fmt.Errorf("delete worktree: could not determine repository root")
+	}
+
+	cmd := exec.Command("git", "worktree", "remove", tree.Path)
+	cmd.Dir = mainRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		message := strings.TrimSpace(string(output))
+		if message != "" {
+			return fmt.Errorf("delete worktree %q: %w: %s", tree.Path, err, message)
+		}
+		return fmt.Errorf("delete worktree %q: %w", tree.Path, err)
+	}
+
+	return nil
+}
