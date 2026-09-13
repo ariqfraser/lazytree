@@ -11,7 +11,7 @@ type gitInfo struct {
 	root string
 }
 
-func getOriginUrl() string {
+func getOriginURL() string {
 	stdout, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
 		return ""
@@ -20,7 +20,7 @@ func getOriginUrl() string {
 }
 
 func GetProjectName() string {
-	return strings.Replace(filepath.Base(getOriginUrl()), ".git", "", 1)
+	return strings.Replace(filepath.Base(getOriginURL()), ".git", "", 1)
 }
 
 func GetCurrentRoot() string {

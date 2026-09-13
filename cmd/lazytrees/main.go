@@ -22,10 +22,17 @@ func main() {
 		fmt.Println(tree.Alias, tree.Path)
 	}
 	fmt.Println("---")
-	alias, err := git.CreateWorktree()
-	if err != nil {
-		fmt.Println("Error: creating", alias, "\n", err)
-	} else {
-		fmt.Println("Created new worktree:", alias)
+	worktree, createErr := git.CreateWorktree()
+	if createErr != nil {
+		fmt.Println("Error: creating", worktree.Alias, "\n", createErr)
+		return
+	}
+
+	fmt.Println("Created new worktree:", worktree.Alias)
+
+	branchErr := git.CheckoutBranch(worktree, "test-branch")
+
+	if branchErr != nil {
+		fmt.Println(branchErr)
 	}
 }
