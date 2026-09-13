@@ -82,3 +82,26 @@ func GetWorktrees() ([]WorktreeStatus, error) {
 
 	return worktrees, nil
 }
+
+func CreateWorktree() (string, error) {
+	alias, path, candidateErr := generateWorktreeCandidate()
+
+	if candidateErr != nil {
+		return alias, candidateErr
+	}
+
+	cmd := exec.Command("git", "worktree", "add", "--detach", path)
+	cmd.Dir = GetCommonRoot()
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		message := strings.TrimSpace(string(stdout))
+		return alias, fmt.Errorf(
+			"create worktree %q: %w: %s",
+			path,
+			err,
+			message,
+		)
+	}
+
+	return alias, nil
+}

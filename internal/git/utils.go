@@ -17,11 +17,28 @@ var (
 
 const lazytreePattern = `[.]lazytrees[\\/][A-Za-z0-9_-]+[\\/]([A-Za-z0-9_-]+)(?:[\\/]|$)`
 
+const LazyTreeDir = ".lazytrees"
+
 var aliasRegexp = regexp.MustCompile(lazytreePattern)
 
 func generateWorktreeAlias() string {
 	fmt.Println("Max alias combos:", len(prefixes)*len(nouns))
 	return prefixes[rand.Intn(len(prefixes))] + "-" + nouns[rand.Intn(len(nouns))]
+}
+
+func getLazytreesRoot() string {
+	return filepath.Join(filepath.Dir(GetCommonRoot()), LazyTreeDir)
+}
+
+// returns Alias, Path, error
+func generateWorktreeCandidate() (string, string, error) {
+	repoName := GetProjectName()
+	alias := generateWorktreeAlias()
+	path := filepath.Join(getLazytreesRoot(), repoName, alias, repoName)
+
+	// [TODO] Validate alias
+
+	return alias, path, nil
 }
 
 func cleanWorktreeMetadata() error {
@@ -33,12 +50,7 @@ func cleanWorktreeMetadata() error {
 	dryRunCmd := exec.Command("git", "worktree", "prune", "--dry-run")
 	dryRunCmd.Dir = mainRoot
 
-	output, err := dryRunCmd.CombinedOutput()
-
-	if output := strings.TrimSpace(string(output)); output != "" {
-		fmt.Println(output)
-	}
-
+	_, err := dryRunCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("dry run worktree prune: %w", err)
 	}
@@ -46,7 +58,7 @@ func cleanWorktreeMetadata() error {
 	pruneCmd := exec.Command("git", "worktree", "prune")
 	pruneCmd.Dir = mainRoot
 
-	output, err = pruneCmd.CombinedOutput()
+	output, err := pruneCmd.CombinedOutput()
 	if err != nil {
 		if output := strings.TrimSpace(string(output)); output != "" {
 			fmt.Println(output)

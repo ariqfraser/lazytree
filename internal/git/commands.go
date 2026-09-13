@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-const LazyTreeDir = ".lazytree"
-
 type gitInfo struct {
 	root string
 }
@@ -22,8 +20,7 @@ func getOriginUrl() string {
 }
 
 func GetProjectName() string {
-	withExt := filepath.Base(getOriginUrl())
-	return strings.Split(withExt, ".")[0]
+	return strings.Replace(filepath.Base(getOriginUrl()), ".git", "", 1)
 }
 
 func GetCurrentRoot() string {
