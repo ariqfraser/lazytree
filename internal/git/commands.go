@@ -2,6 +2,7 @@
 package git
 
 import (
+	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -11,16 +12,21 @@ type gitInfo struct {
 	root string
 }
 
-func getOriginURL() string {
+func getOriginURL() (string, error) {
 	stdout, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
-		return ""
+		return "", fmt.Errorf("get origin: %s", string(stdout))
 	}
-	return strings.TrimSpace(string(stdout))
+	return strings.TrimSpace(string(stdout)), nil
 }
 
-func GetProjectName() string {
-	return strings.Replace(filepath.Base(getOriginURL()), ".git", "", 1)
+func GetProjectName() (string, error) {
+	originURL, err := getOriginURL()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Replace(filepath.Base(originURL), ".git", "", 1), nil
 }
 
 func GetCurrentRoot() string {

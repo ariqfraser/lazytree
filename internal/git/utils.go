@@ -32,7 +32,10 @@ func getLazytreesRoot() string {
 
 // returns Alias, Path, error
 func generateWorktreeCandidate() (string, string, error) {
-	repoName := GetProjectName()
+	repoName, err := GetProjectName()
+	if err != nil {
+		return "", "", err
+	}
 	alias := generateWorktreeAlias()
 	path := filepath.Join(getLazytreesRoot(), repoName, alias, repoName)
 

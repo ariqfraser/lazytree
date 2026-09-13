@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type WorktreeStatus struct {
+type Worktree struct {
 	Alias    string
 	Path     string
 	Head     string
@@ -18,7 +18,7 @@ type WorktreeStatus struct {
 	Detached bool
 }
 
-func GetWorktrees() ([]WorktreeStatus, error) {
+func GetWorktrees() ([]Worktree, error) {
 	if _, err := CleanWorktreeMetadata(); err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func GetWorktrees() ([]WorktreeStatus, error) {
 		return nil, fmt.Errorf("list worktrees: %w", err)
 	}
 
-	var worktrees []WorktreeStatus
+	var worktrees []Worktree
 	scanner := bufio.NewScanner(bytes.NewReader(stdout))
 	current := -1
 
@@ -52,7 +52,7 @@ func GetWorktrees() ([]WorktreeStatus, error) {
 		case "worktree":
 			path := filepath.Clean(value)
 
-			worktrees = append(worktrees, WorktreeStatus{
+			worktrees = append(worktrees, Worktree{
 				Path:  path,
 				Alias: getWorktreeAlias(path, mainRoot),
 			})
@@ -83,10 +83,10 @@ func GetWorktrees() ([]WorktreeStatus, error) {
 	return worktrees, nil
 }
 
-func CreateWorktree() (WorktreeStatus, error) {
+func CreateWorktree() (Worktree, error) {
 	alias, path, candidateErr := generateWorktreeCandidate()
 
-	newTree := WorktreeStatus{}
+	newTree := Worktree{}
 
 	if candidateErr != nil {
 		return newTree, candidateErr
@@ -112,7 +112,7 @@ func CreateWorktree() (WorktreeStatus, error) {
 	return newTree, nil
 }
 
-func CheckoutBranch(tree WorktreeStatus, branch string) error {
+func (tree Worktree) CheckoutBranch(branch string) error {
 	cmd := exec.Command("git", "checkout", branch)
 	cmd.Dir = tree.Path
 
@@ -124,7 +124,7 @@ func CheckoutBranch(tree WorktreeStatus, branch string) error {
 	return nil
 }
 
-func DeleteWorktree(tree WorktreeStatus) error {
+func (tree Worktree) Delete() error {
 	if tree.Path == "" {
 		return fmt.Errorf("delete worktree: path is empty")
 	}
