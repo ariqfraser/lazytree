@@ -1,7 +1,15 @@
 package main
 
-import "lazytrees/internal/bootstrap"
+import (
+	"log"
+
+	"lazytrees/internal/ui"
+
+	tea "charm.land/bubbletea/v2"
+)
 
 func main() {
-	bootstrap.Bootstrap()
+	if _, err := tea.NewProgram(ui.Bootstrap()).Run(); err != nil {
+		log.Fatal(err)
+	}
 }
