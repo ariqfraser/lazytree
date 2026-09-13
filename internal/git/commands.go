@@ -8,10 +8,6 @@ import (
 	"strings"
 )
 
-type gitInfo struct {
-	root string
-}
-
 func getOriginURL() (string, error) {
 	stdout, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
