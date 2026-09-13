@@ -19,7 +19,7 @@ type WorktreeStatus struct {
 }
 
 func GetWorktrees() ([]WorktreeStatus, error) {
-	if err := cleanWorktreeMetadata(); err != nil {
+	if _, err := CleanWorktreeMetadata(); err != nil {
 		return nil, err
 	}
 

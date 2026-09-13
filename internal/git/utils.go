@@ -41,33 +41,32 @@ func generateWorktreeCandidate() (string, string, error) {
 	return alias, path, nil
 }
 
-func cleanWorktreeMetadata() error {
+func CleanWorktreeMetadata() (string, error) {
 	mainRoot := GetCommonRoot()
 	if mainRoot == "" {
-		return fmt.Errorf("could not determine repository root")
+		return "", fmt.Errorf("could not determine repository root")
 	}
 
 	dryRunCmd := exec.Command("git", "worktree", "prune", "--dry-run")
 	dryRunCmd.Dir = mainRoot
 
-	_, err := dryRunCmd.CombinedOutput()
+	dryRunOut, err := dryRunCmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("dry run worktree prune: %w", err)
+		return "", fmt.Errorf("dry run worktree prune: %w", err)
 	}
 
 	pruneCmd := exec.Command("git", "worktree", "prune")
 	pruneCmd.Dir = mainRoot
 
-	output, err := pruneCmd.CombinedOutput()
+	pruneOutput, err := pruneCmd.CombinedOutput()
 	if err != nil {
-		if output := strings.TrimSpace(string(output)); output != "" {
-			fmt.Println(output)
+		pruneOutput := strings.TrimSpace(string(pruneOutput))
+		if pruneOutput != "" {
+			return "", fmt.Errorf("prune error: %w", pruneOutput)
 		}
-
-		return fmt.Errorf("prune worktrees: %w", err)
 	}
 
-	return nil
+	return strings.TrimSpace(string(dryRunOut)), nil
 }
 
 func getWorktreeAlias(path, mainRoot string) string {
